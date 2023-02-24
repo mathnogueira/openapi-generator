@@ -2,10 +2,14 @@
 package {{packageName}}
 
 import (
+	{{#hasJsonOperation}}
 	"encoding/json"
+	{{/hasJsonOperation}}
 	"net/http"
 	"strings"
-
+	{{#hasYamlOperation}}
+	"gopkg.in/yaml.v2"
+	{{/hasYamlOperation}}
 {{#routers}}
 	{{#mux}}
 	"github.com/gorilla/mux"
@@ -198,10 +202,15 @@ func (c *{{classname}}Controller) {{nickname}}(w http.ResponseWriter, r *http.Re
 	{{/isHeaderParam}}
 	{{#isBodyParam}}
 	{{paramName}}Param := {{dataType}}{}
+	{{^isYaml}}
 	d := json.NewDecoder(r.Body)
 	{{^isAdditionalPropertiesTrue}}
 	d.DisallowUnknownFields()
 	{{/isAdditionalPropertiesTrue}}
+	{{/isYaml}}
+	{{#isYaml}}
+	d := yaml.NewDecoder(r.Body)
+	{{/isYaml}}
 	if err := d.Decode(&{{paramName}}Param); err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
@@ -233,6 +242,11 @@ func (c *{{classname}}Controller) {{nickname}}(w http.ResponseWriter, r *http.Re
 		return
 	}
 	// If no error, encode the body and the result code
+	{{^isYaml}}
 	EncodeJSONResponse(result.Body, &result.Code,{{#addResponseHeaders}} result.Headers,{{/addResponseHeaders}} w)
+	{{/isYaml}}
+	{{#isYaml}}
+	EncodeYAMLResponse(result.Body, &result.Code,{{#addResponseHeaders}} result.Headers,{{/addResponseHeaders}} w)
+	{{/isYaml}}
 
 }{{/operation}}{{/operations}}

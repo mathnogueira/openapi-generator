@@ -4,6 +4,7 @@ package {{packageName}}
 import (
 	"encoding/json"
 	"errors"
+	"gopkg.in/yaml.v2"
 {{#routers}}
 	{{#mux}}
 	"github.com/gorilla/mux"
@@ -110,6 +111,35 @@ func EncodeJSONResponse(i interface{}, status *int,{{#addResponseHeaders}} heade
 
 	if i != nil {
 		return json.NewEncoder(w).Encode(i)
+	}
+
+	return nil
+}
+
+// EncodeYAMLResponse uses the yaml encoder to write an interface to the http response with an optional status code
+func EncodeYAMLResponse(i interface{}, status *int,{{#addResponseHeaders}} headers map[string][]string,{{/addResponseHeaders}} w http.ResponseWriter) error {
+	{{#addResponseHeaders}}
+	wHeader := w.Header()
+	if headers != nil {
+		for key, values := range headers {
+			for _, value := range values {
+				wHeader.Add(key, value)
+			}
+		}
+	}
+	wHeader.Set("Content-Type", "application/yaml; charset=UTF-8")
+	{{/addResponseHeaders}}
+	{{^addResponseHeaders}}
+	w.Header().Set("Content-Type", "application/yaml; charset=UTF-8")
+	{{/addResponseHeaders}}
+	if status != nil {
+		w.WriteHeader(*status)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	if i != nil {
+		return yaml.NewEncoder(w).Encode(i)
 	}
 
 	return nil

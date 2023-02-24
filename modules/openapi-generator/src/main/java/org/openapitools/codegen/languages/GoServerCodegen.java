@@ -59,7 +59,6 @@ public class GoServerCodegen extends AbstractGoCodegen {
     protected Boolean outputAsLibrary = false;
     protected Boolean onlyInterfaces = false;
 
-
     public GoServerCodegen() {
         super();
 
@@ -114,7 +113,7 @@ public class GoServerCodegen extends AbstractGoCodegen {
         optAddResponseHeaders.defaultValue(addResponseHeaders.toString());
         cliOptions.add(optAddResponseHeaders);
 
-        
+
         // option to exclude service factories; only interfaces are rendered
         CliOption optOnlyInterfaces = new CliOption("onlyInterfaces", "Exclude default service creators from output; only generate interfaces");
         optOnlyInterfaces.setType("bool");
@@ -303,6 +302,14 @@ public class GoServerCodegen extends AbstractGoCodegen {
         boolean addedTimeImport = false;
         boolean addedOSImport = false;
         for (CodegenOperation operation : operations) {
+            if (operation.isYaml) {
+                additionalProperties.put("hasYamlOperation", true);
+            }
+
+            if (!operation.isYaml) {
+                additionalProperties.put("hasJsonOperation", true);
+            }
+
             for (CodegenParameter param : operation.allParams) {
                 // import "os" if the operation uses files
                 if (!addedOSImport && ("*os.File".equals(param.dataType) || ("[]*os.File".equals(param.dataType)))) {

@@ -509,6 +509,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegen implements Codege
                 imports.add(createMapping("import", "os"));
                 addedOSImport = true;
             }
+
             for (CodegenParameter param : operation.allParams) {
                 // import "os" if the operation uses files
                 if (!addedOSImport && "*os.File".equals(param.dataType)) {

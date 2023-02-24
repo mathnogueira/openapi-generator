@@ -4419,6 +4419,7 @@ public class DefaultCodegen implements CodegenConfig {
             String contentType = getContentType(requestBody);
             if (contentType != null) {
                 contentType = contentType.toLowerCase(Locale.ROOT);
+                op.isYaml = contentType.startsWith("text/x-yaml");
             }
             if (contentType != null &&
                     (contentType.startsWith("application/x-www-form-urlencoded") ||
